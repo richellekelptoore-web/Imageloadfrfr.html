@@ -18,7 +18,7 @@
     .close-btn { float: right; cursor: pointer; color: red; font-weight: bold; }
     #image-list { margin: 20px; }
     .image-item { background: #fff; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-    .image-item img { max-width: 120px; margin-top: 5px; display: block; }
+    .image-item img, .image-item video { max-width: 240px; margin-top: 5px; display: block; }
     .note, .limit-note, .pro-note { padding: 10px; margin: 10px 20px; border-left: 5px solid; border-radius: 5px; }
     .note { background: #fff3cd; border-color: #ffc107; }
     .limit-note { background: #d1ecf1; border-color: #17a2b8; }
@@ -46,10 +46,10 @@
   <!-- Upload Panel -->
   <div id="uploadPanel" class="float-panel">
     <span class="close-btn" onclick="closePanel('uploadPanel')">✖</span>
-    <h3>Upload Image</h3>
-    <input type="file" id="uploadInput" accept=".png,.gif,.mp4,.jpeg,.jpg,.webp" multiple>
+    <h3>Upload Image / GIF / Video</h3>
+    <input type="file" id="uploadInput" accept=".png,.gif,.mp4,.jpeg,.jpg,.webp,.webm" multiple>
     <button onclick="mockUpload()">Upload</button>
-    <p>Uploaded images will appear below.</p>
+    <p>Uploaded media will appear below.</p>
   </div>
 
   <!-- Sign In Panel -->
@@ -64,22 +64,22 @@
   <div id="proPanel" class="float-panel">
     <span class="close-btn" onclick="closePanel('proPanel')">✖</span>
     <h3>Upgrade to Pro</h3>
-    <p>Unlock <strong>500 images every 8 hours</strong> for just <strong>$45/year</strong>.</p>
+    <p>Unlock <strong>500 uploads every 8 hours</strong> for just <strong>$45/year</strong>.</p>
     <button onclick="mockUpgrade()">Upgrade Now</button>
   </div>
 
   <section id="image-list">
-    <h2 style="margin-left:20px;">🖼️ Image List</h2>
+    <h2 style="margin-left:20px;">🖼️ Media List</h2>
   </section>
 
   <div class="note">
-    ⚠️ Without sign-in: Only up to <strong>5 images/month</strong>.
+    ⚠️ Without sign-in: Only up to <strong>5 uploads/month</strong>.
   </div>
   <div class="limit-note">
-    🚧 Free user: Up to <strong>100 images/week</strong>.
+    🚧 Free user: Up to <strong>100 uploads/week</strong>.
   </div>
   <div class="pro-note">
-    🧪 Pro user: Up to <strong>500 images every 8 hours</strong>.
+    🧪 Pro user: Up to <strong>500 uploads every 8 hours</strong>.
   </div>
 
   <script>
@@ -112,15 +112,30 @@
       const files = document.getElementById('uploadInput').files;
       const limit = imageLimit[userTier];
       if (imageCount + files.length > limit) {
-        alert(`❌ Quota exceeded! You can only upload ${limit - imageCount} more images as a ${userTier} user.`);
+        alert(`❌ Quota exceeded! You can only upload ${limit - imageCount} more items as a ${userTier} user.`);
         return;
       }
       for (let file of files) {
-        const fakeUrl = `https://cdn.example.com/${file.name}`;
+        const token = `https://richellebotpreview.github.io/html/assets/${file.name}`;
         const preview = URL.createObjectURL(file);
         const div = document.createElement('div');
         div.className = 'image-item';
-        div.innerHTML = `<strong>[One Image]</strong><br><span>${fakeUrl}</span><br><img src="${preview}">`;
+
+        let mediaBlock = '';
+        if (file.type.startsWith('image/')) {
+          mediaBlock = `<img src="${preview}" alt="Image Preview">`;
+        } else if (file.type.startsWith('video/')) {
+          mediaBlock = `<video src="${preview}" controls></video>`;
+        } else {
+          mediaBlock = `<span>❌ Unsupported file type</span>`;
+        }
+
+        div.innerHTML = `
+          <strong>[One Upload]</strong><br>
+          <span>Your image URL_ID_TOKEN:</span><br>
+          <code>${token}</code><br>
+          ${mediaBlock}
+        `;
         document.getElementById('image-list').appendChild(div);
         imageCount++;
       }
@@ -140,7 +155,7 @@
     function logout() {
       userTier = "guest";
       imageCount = 0;
-      document.getElementById('image-list').innerHTML = '<h2 style="margin-left:20px;">🖼️ Image List</h2>';
+      document.getElementById('image-list').innerHTML = '<h2 style="margin-left:20px;">🖼️ Media List</h2>';
       document.getElementById('loginInfo').innerHTML = '';
       document.getElementById('signInBtn').style.display = 'inline-block';
       showBadge("🚪 Logged Out");
