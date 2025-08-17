@@ -31,7 +31,6 @@
       font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
   </style>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -59,22 +58,6 @@
     <h3>Sign In</h3>
     <input type="email" id="emailInput" placeholder="Enter your email">
     <button onclick="mockSignIn()">Sign in with Email</button>
-    <br><br>
-    <!-- Google Sign-In -->
-    <div id="g_id_onload"
-         data-client_id="959147344616-o7a80mn2odortc9gsccep654atacbj5f.apps.googleusercontent.com"
-         data-context="signin"
-         data-ux_mode="popup"
-         data-callback="handleGoogleResponse">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-shape="rect"
-         data-logo_alignment="left">
-    </div>
   </div>
 
   <!-- Pro Upgrade Panel -->
@@ -108,9 +91,14 @@
     function closePanel(id) { document.getElementById(id).style.display = 'none'; }
 
     function mockSignIn() {
+      const email = document.getElementById('emailInput').value;
+      if (!email.includes('@')) {
+        alert("❌ Invalid email format.");
+        return;
+      }
       userTier = "free";
       closePanel('signInPanel');
-      activateLoginDisplay("guest@example.com");
+      activateLoginDisplay(email);
       showBadge("🎖️ Free Tier Activated");
     }
 
@@ -138,16 +126,6 @@
       }
       document.getElementById('uploadInput').value = '';
       closePanel('uploadPanel');
-    }
-
-    function handleGoogleResponse(response) {
-      const token = response.credential;
-      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-      const email = payload.email || "Unknown";
-      userTier = "free";
-      closePanel('signInPanel');
-      activateLoginDisplay(email);
-      showBadge("🎖️ Free Tier Activated");
     }
 
     function activateLoginDisplay(email) {
@@ -178,4 +156,4 @@
   </script>
 
 </body>
-      </html>
+</html>
