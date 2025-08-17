@@ -1,146 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Image Mutation Portal</title>
-<style>
-  body { font-family: sans-serif; margin: 0; background: #f9f9f9; }
-  header { display: flex; justify-content: space-between; padding: 10px 20px; background: #222; color: white; }
-  button { margin: 5px; padding: 10px 15px; cursor: pointer; border: none; background: #444; color: white; border-radius: 5px; }
-  .float-panel {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: white; border: 2px solid #444; padding: 20px; z-index: 1000;
-    display: none; width: 340px; box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  }
-  .close-btn { float: right; cursor: pointer; color: red; font-weight: bold; }
-  #image-list { margin: 20px; }
-  .image-item { background: #fff; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-  .image-item img { max-width: 120px; margin-top: 5px; display: block; }
-  .note, .limit-note, .pro-note { padding: 10px; margin: 10px 20px; border-left: 5px solid; border-radius: 5px; }
-  .note { background: #fff3cd; border-color: #ffc107; }
-  .limit-note { background: #d1ecf1; border-color: #17a2b8; }
-  .pro-note { background: #e2ffe2; border-color: #28a745; }
-  input[type="email"], input[type="file"] { width: 100%; margin: 10px 0; }
-  .badge {
-    position: fixed; top: 20px; right: 20px;
-    background: #222; color: #fff;
-    padding: 10px 16px; border-radius: 8px;
-    font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  }
-</style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta charset="UTF-8">
+  <title>Image Mutation Portal</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f9f9f9; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #222; color: white; }
+    header .login-info { display: flex; align-items: center; }
+    header .login-info span { margin-right: 10px; }
+    header .logout-link { color: #ff4b4b; cursor: pointer; text-decoration: underline; }
+    button { margin: 5px; padding: 10px 15px; cursor: pointer; border: none; background: #444; color: white; border-radius: 5px; }
+    .float-panel {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; border: 2px solid #444; padding: 20px; z-index: 1000;
+      display: none; width: 340px; box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .close-btn { float: right; cursor: pointer; color: red; font-weight: bold; }
+    #image-list { margin: 20px; }
+    .image-item { background: #fff; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+    .image-item img { max-width: 120px; margin-top: 5px; display: block; }
+    .note, .limit-note, .pro-note { padding: 10px; margin: 10px 20px; border-left: 5px solid; border-radius: 5px; }
+    .note { background: #fff3cd; border-color: #ffc107; }
+    .limit-note { background: #d1ecf1; border-color: #17a2b8; }
+    .pro-note { background: #e2ffe2; border-color: #28a745; }
+    input[type="email"], input[type="file"] { width: 100%; margin: 10px 0; }
+    .badge {
+      position: fixed; top: 20px; right: 20px;
+      background: #222; color: #fff;
+      padding: 10px 16px; border-radius: 8px;
+      font-weight: bold; box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<header>
-  <button onclick="showPanel('uploadPanel')">📤 Upload</button>
-  <button onclick="showPanel('signInPanel')">🔐 Sign In</button>
-  <button onclick="showPanel('proPanel')">🚀 Pro Upgrade</button>
-</header>
+  <header>
+    <div>
+      <button onclick="showPanel('uploadPanel')">📤 Upload</button>
+      <button onclick="showPanel('signInPanel')" id="signInBtn">🔐 Sign In</button>
+      <button onclick="showPanel('proPanel')">🚀 Pro Upgrade</button>
+    </div>
+    <div class="login-info" id="loginInfo"></div>
+  </header>
 
-<!-- Upload Panel -->
-<div id="uploadPanel" class="float-panel">
-  <span class="close-btn" onclick="closePanel('uploadPanel')">✖</span>
-  <h3>Upload Image</h3>
-  <input type="file" id="uploadInput" accept=".png,.gif,.mp4,.jpeg,.jpg,.webp" multiple>
-  <button onclick="mockUpload()">Upload</button>
-  <p>Uploaded images will appear below.</p>
-</div>
-
-<!-- Sign In Panel -->
-<div id="signInPanel" class="float-panel">
-  <span class="close-btn" onclick="closePanel('signInPanel')">✖</span>
-  <h3>Sign In</h3>
-  <input type="email" id="emailInput" placeholder="Enter your email">
-  <button onclick="mockSignIn()">Sign in with Email</button>
-  <br><br>
-  <!-- Google Sign-In -->
-  <div id="g_id_onload"
-       data-client_id="959147344616-o7a80mn2odortc9gsccep654atacbj5f.apps.googleusercontent.com"
-       data-context="signin"
-       data-ux_mode="popup"
-       data-callback="onGoogleSignIn">
+  <!-- Upload Panel -->
+  <div id="uploadPanel" class="float-panel">
+    <span class="close-btn" onclick="closePanel('uploadPanel')">✖</span>
+    <h3>Upload Image</h3>
+    <input type="file" id="uploadInput" accept=".png,.gif,.mp4,.jpeg,.jpg,.webp" multiple>
+    <button onclick="mockUpload()">Upload</button>
+    <p>Uploaded images will appear below.</p>
   </div>
-  <div class="g_id_signin"
-       data-type="standard"
-       data-size="large"
-       data-theme="outline"
-       data-text="sign_in_with"
-       data-shape="rect"
-       data-logo_alignment="left">
+
+  <!-- Sign In Panel -->
+  <div id="signInPanel" class="float-panel">
+    <span class="close-btn" onclick="closePanel('signInPanel')">✖</span>
+    <h3>Sign In</h3>
+    <input type="email" id="emailInput" placeholder="Enter your email">
+    <button onclick="mockSignIn()">Sign in with Email</button>
+    <br><br>
+    <!-- Google Sign-In -->
+    <div id="g_id_onload"
+         data-client_id="959147344616-o7a80mn2odortc9gsccep654atacbj5f.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleGoogleResponse">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rect"
+         data-logo_alignment="left">
+    </div>
   </div>
-</div>
 
-<!-- Pro Upgrade Panel -->
-<div id="proPanel" class="float-panel">
-  <span class="close-btn" onclick="closePanel('proPanel')">✖</span>
-  <h3>Upgrade to Pro</h3>
-  <p>Unlock <strong>500 images every 8 hours</strong> for just <strong>$45/year</strong>.</p>
-  <button onclick="mockUpgrade()">Upgrade Now</button>
-</div>
+  <!-- Pro Upgrade Panel -->
+  <div id="proPanel" class="float-panel">
+    <span class="close-btn" onclick="closePanel('proPanel')">✖</span>
+    <h3>Upgrade to Pro</h3>
+    <p>Unlock <strong>500 images every 8 hours</strong> for just <strong>$45/year</strong>.</p>
+    <button onclick="mockUpgrade()">Upgrade Now</button>
+  </div>
 
-<section id="image-list">
-  <h2 style="margin-left:20px;">🖼️ Image List</h2>
-</section>
+  <section id="image-list">
+    <h2 style="margin-left:20px;">🖼️ Image List</h2>
+  </section>
 
-<div class="note">
-  ⚠️ Without sign-in: Only up to <strong>5 images/month</strong>.
-</div>
-<div class="limit-note">
-  🚧 Free user: Up to <strong>100 images/week</strong>.
-</div>
-<div class="pro-note">
-  🧪 Pro user: Up to <strong>500 images every 8 hours</strong>.
-</div>
+  <div class="note">
+    ⚠️ Without sign-in: Only up to <strong>5 images/month</strong>.
+  </div>
+  <div class="limit-note">
+    🚧 Free user: Up to <strong>100 images/week</strong>.
+  </div>
+  <div class="pro-note">
+    🧪 Pro user: Up to <strong>500 images every 8 hours</strong>.
+  </div>
 
-<script>
-  let userTier = "guest";
-  let imageCount = 0;
-  const imageLimit = { guest: 5, free: 100, pro: 500 };
+  <script>
+    let userTier = "guest";
+    let imageCount = 0;
+    const imageLimit = { guest: 5, free: 100, pro: 500 };
 
-  function showPanel(id){ document.getElementById(id).style.display = 'block'; }
-  function closePanel(id){ document.getElementById(id).style.display = 'none'; }
-  function mockSignIn(){
-    userTier = "free";
-    alert("Signed in as Free User. Limit: 100 images/week.");
-    closePanel('signInPanel');
-  }
-  function mockUpgrade(){
-    userTier = "pro";
-    alert("Upgraded to Pro! Limit: 500 images every 8 hours.");
-    closePanel('proPanel');
-  }
-  function mockUpload(){
-    const files = document.getElementById('uploadInput').files;
-    const limit = imageLimit[userTier];
-    if (imageCount + files.length > limit) {
-      alert(`❌ Quota exceeded! You can only upload ${limit - imageCount} more images as a ${userTier} user.`);
-      return;
+    function showPanel(id) { document.getElementById(id).style.display = 'block'; }
+    function closePanel(id) { document.getElementById(id).style.display = 'none'; }
+
+    function mockSignIn() {
+      userTier = "free";
+      closePanel('signInPanel');
+      activateLoginDisplay("guest@example.com");
+      showBadge("🎖️ Free Tier Activated");
     }
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fakeUrl = `https://cdn.example.com/${file.name}`;
-      const localPreview = URL.createObjectURL(file);
-      const div = document.createElement('div');
-      div.className = 'image-item';
-      div.innerHTML = `<strong>[One Image]</strong><br><span>${fakeUrl}</span><br><img src="${localPreview}">`;
-      document.getElementById('image-list').appendChild(div);
-      imageCount++;
+
+    function mockUpgrade() {
+      userTier = "pro";
+      closePanel('proPanel');
+      showBadge("🚀 Pro Tier Activated");
     }
-    document.getElementById('uploadInput').value = '';
-    closePanel('uploadPanel');
-  }
-  function onGoogleSignIn(response){
-    userTier = "free";
-    alert("🎖️ Signed in with Google. Free Tier activated: 100 images/week.");
-    closePanel('signInPanel');
-    const badge = document.createElement('div');
-    badge.className = 'badge';
-    badge.innerText = "🎖️ Free Tier Activated";
-    document.body.appendChild(badge);
-    setTimeout(()=>badge.remove(), 3000);
-  }
-</script>
+
+    function mockUpload() {
+      const files = document.getElementById('uploadInput').files;
+      const limit = imageLimit[userTier];
+      if (imageCount + files.length > limit) {
+        alert(`❌ Quota exceeded! You can only upload ${limit - imageCount} more images as a ${userTier} user.`);
+        return;
+      }
+      for (let file of files) {
+        const fakeUrl = `https://cdn.example.com/${file.name}`;
+        const preview = URL.createObjectURL(file);
+        const div = document.createElement('div');
+        div.className = 'image-item';
+        div.innerHTML = `<strong>[One Image]</strong><br><span>${fakeUrl}</span><br><img src="${preview}">`;
+        document.getElementById('image-list').appendChild(div);
+        imageCount++;
+      }
+      document.getElementById('uploadInput').value = '';
+      closePanel('uploadPanel');
+    }
+
+    function handleGoogleResponse(response) {
+      const token = response.credential;
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const email = payload.email || "Unknown";
+      userTier = "free";
+      closePanel('signInPanel');
+      activateLoginDisplay(email);
+      showBadge("🎖️ Free Tier Activated");
+    }
+
+    function activateLoginDisplay(email) {
+      document.getElementById('signInBtn').style.display = 'none';
+      const info = document.getElementById('loginInfo');
+      info.innerHTML = `
+        <span>${email}</span>
+        <span class="logout-link" onclick="logout()">Log out</span>
+      `;
+    }
+
+    function logout() {
+      userTier = "guest";
+      imageCount = 0;
+      document.getElementById('image-list').innerHTML = '<h2 style="margin-left:20px;">🖼️ Image List</h2>';
+      document.getElementById('loginInfo').innerHTML = '';
+      document.getElementById('signInBtn').style.display = 'inline-block';
+      showBadge("🚪 Logged Out");
+    }
+
+    function showBadge(text) {
+      const b = document.createElement('div');
+      b.className = 'badge';
+      b.innerText = text;
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 3000);
+    }
+  </script>
 
 </body>
-  </html>
+      </html>
