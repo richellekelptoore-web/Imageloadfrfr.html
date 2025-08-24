@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jab Jab Jayh Drop</title>
+</head>
+<body>
+
+  <button onclick="sendBadge()">🔔 Touch to Send Badge</button>
+
+  <script>
+    function sendBadge() {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification("👋 hello user!! from Jab Jab Jayh", {
+            body: "📚 Book Plush 📘🧸 — 100% of $7.99 tribute 💸 — 4 weeks left ⏳",
+            icon: "https://uploads.onecompiler.io/43tw6hxym/43umkfpan/Untitled1_20250824003427.png"
+          });
+        } else {
+          console.log("⚠️ Sovereign breach — permission denied");
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
